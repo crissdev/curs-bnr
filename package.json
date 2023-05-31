@@ -2,12 +2,24 @@
   "name": "curs-bnr",
   "version": "1.0.0",
   "private": true,
-  "main": "dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.modern.js",
+  "unpkg": "./dist/index.umd.js",
+  "exports": {
+    "default": "./dist/index.modern.js",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "scripts": {
+    "build": "microbundle src/rates.ts",
     "test": "vitest",
     "lint": "tsc -p tsconfig.json",
-    "format": "prettier --write src/ test/ vitest.config.ts tsconfig.json"
+    "format": "prettier --write src/ test/ vitest.config.ts tsconfig.json",
+    "format:check": "prettier --check src/ test/ vitest.config.ts tsconfig.json",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
@@ -19,6 +31,7 @@
     "@total-typescript/ts-reset": "^0.4.2",
     "@vitest/coverage-c8": "^0.31.1",
     "chalk": "^4.1.2",
+    "microbundle": "^0.15.1",
     "msw": "^1.2.1",
     "prettier": "^2.8.8",
     "typescript": "^5.0.4",
