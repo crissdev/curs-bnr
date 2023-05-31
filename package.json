@@ -13,6 +13,9 @@
     "dist"
   ],
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "microbundle src/rates.ts",
     "test": "vitest",
