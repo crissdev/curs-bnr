@@ -1,7 +1,6 @@
 # CURS-BNR
 
 [![npm version](https://badge.fury.io/js/curs-bnr.svg)](https://badge.fury.io/js/curs-bnr)
-
 [![CI](https://github.com/crissdev/curs-bnr/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/crissdev/curs-bnr/actions/workflows/node.js.yml)
 
 Retrieve the BNR exchange rates for a specific date or the most recent BNR exchange rates.
