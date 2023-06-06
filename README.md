@@ -1,4 +1,4 @@
-# CURS-BNR
+_# CURS-BNR
 
 Retrieve the BNR exchange rates for a specific date or the most recent BNR exchange rates.
 
@@ -16,7 +16,11 @@ npm install curs-bnr
 const { getMostRecentExchangeRates } = require("curs-bnr");
 const rates = await getMostRecentExchangeRates();
 console.log(rates);
-// [{ date: '2023-06-02', value: 4.9633, currency: 'EUR' }]
+// [
+//   { date: '2023-06-02', value: 4.9633, currency: 'EUR' },
+//   { date: '2023-06-02', value: 5.7790, currency: 'GBP' }
+//   ...
+// ]
 ```
 
 **Retrieve the BNR exchange rates for a specific year**
@@ -45,4 +49,4 @@ BNR_FX_RATES_OF_YEAR_URL="https://bnr.ro/files/xml/years/nbrfxrates{year}.xml"
 
 ## License
 
-MIT
+MIT © [Cristian Trifan](https://cristian-trifan.dev)
