@@ -34,7 +34,8 @@ jobs:
         run: npm test
 
       - name: Publish to NPM
-        if: false # Disabled for now
+        # Publishing from GitHub actions is disabled for now
+        if: false && github.ref == 'refs/heads/main'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
