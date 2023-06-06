@@ -1,7 +1,6 @@
 {
   "name": "curs-bnr",
   "version": "0.0.1",
-  "private": true,
   "main": "./dist/index.cjs",
   "module": "./dist/index.modern.js",
   "unpkg": "./dist/index.umd.js",
