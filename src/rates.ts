@@ -80,7 +80,7 @@ async function fetchRates(url: string) {
         }),
       })
       .transform((data) => {
-        let cube = data.DataSet.Body.Cube;
+        const cube = data.DataSet.Body.Cube;
 
         const onlyKnownCurrencies = (rate: (typeof cube)[number]["rates"][number]) => rate.currency in CurrencyCode;
 
