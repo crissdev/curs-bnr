@@ -18,6 +18,7 @@
   "scripts": {
     "build": "microbundle src/rates.ts",
     "test": "vitest",
+    "test:coverage": "vitest --coverage",
     "lint": "eslint src/ test/",
     "type:check": "tsc -p tsconfig.json",
     "format": "prettier --write src/ test/ vitest.config.ts tsconfig.json",
