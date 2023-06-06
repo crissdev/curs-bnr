@@ -10,13 +10,13 @@ suite("Prod Exchange rates", () => {
     }
     const rates = await getMostRecentExchangeRates();
 
-    expect(rates).toHaveLength(1);
     expect(rates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           date: expect.stringMatching(/\d{4}-\d{2}-\d{2}/),
           currency: expect.any(String),
           value: expect.any(Number),
+          multiplier: expect.any(Number),
         }),
       ])
     );
@@ -35,9 +35,16 @@ suite("Prod Exchange rates", () => {
           date: expect.stringMatching(/\d{4}-\d{2}-\d{2}/),
           currency: expect.any(String),
           value: expect.any(Number),
+          multiplier: expect.any(Number),
         }),
       ])
     );
-    expect(rates[0]).toEqual({ date: "2023-01-03", currency: "EUR", value: 4.9273 });
+    expect(rates).toEqual(
+      expect.arrayContaining([
+        { date: "2023-01-03", currency: "EUR", value: 4.9273 },
+        { date: "2023-01-03", currency: "GBP", value: 5.572 },
+        { date: "2023-01-03", currency: "JPY", value: 3.5797, multiplier: 100 },
+      ])
+    );
   });
 });
