@@ -36,8 +36,14 @@ jobs:
       - name: Run type check
         run: npm run type:check
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage
+        run: npm test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage/
 
       - name: Publish to NPM
         # Publishing from GitHub actions is disabled for now
