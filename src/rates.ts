@@ -56,9 +56,7 @@ async function fetchRates(url: string) {
       isArray: (name) => name === "rates" || name === "Cube",
     });
     const xml = await fetch(url).then((r) => r.text());
-    const parsed: unknown = xmlParser.parse(xml);
-
-    const apiResponseSchema = z
+    return z
       .object({
         DataSet: z.object({
           Body: z.object({
@@ -79,28 +77,24 @@ async function fetchRates(url: string) {
           }),
         }),
       })
-      .transform((data) => {
-        const cube = data.DataSet.Body.Cube;
-
-        const onlyKnownCurrencies = (rate: (typeof cube)[number]["rates"][number]) => rate.currency in CurrencyCode;
-
-        return cube
-          .flatMap(({ date, rates }) =>
-            rates.map<Rate>((rate) =>
-              Object.assign(
-                {
-                  date,
-                  value: rate.value,
-                  currency: rate.currency as CurrencyCode,
-                },
-                rate.multiplier ? { multiplier: rate.multiplier } : null
-              )
+      .transform((data) =>
+        data.DataSet.Body.Cube.flatMap(({ date, rates }) =>
+          rates.map<Rate>((rate) =>
+            Object.assign(
+              {
+                date,
+                value: rate.value,
+                currency: rate.currency as CurrencyCode,
+              },
+              rate.multiplier ? { multiplier: rate.multiplier } : null
             )
           )
-          .filter(onlyKnownCurrencies);
-      });
-
-    return apiResponseSchema.parse(parsed);
+        ).filter(
+          // Allow only rates from known currencies
+          (rate) => rate.currency in CurrencyCode
+        )
+      )
+      .parse(xmlParser.parse(xml));
   } catch (err) {
     throw new Error("Server did not return a valid response", { cause: err });
   }
