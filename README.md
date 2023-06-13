@@ -38,6 +38,19 @@ console.log(rates);
 //    ...
 // ]
 ```
+**Retrieve the BNR exchange rates for a specific date**
+
+```js
+const { getExchangeRatesForDate } = require("curs-bnr");
+const rates = await getExchangeRatesForDate('2023-06-12');
+console.log(rates);
+// [
+//    { date: '2023-06-12', value: 4.9568, currency: 'EUR' },
+//    { date: '2023-06-12', value: 5.7893, currency: 'GBP' },
+//    { date: '2023-06-12', value: 3.3022, currency: 'JPY', multiplier: 100 },
+//    ...
+// ]
+```
 
 ## Configuration
 
