@@ -2,8 +2,8 @@ import { afterAll, beforeAll, expect, suite, test } from "vitest";
 import { rest } from "msw";
 import { type SetupServer, setupServer } from "msw/node";
 import env from "@/env";
-import { CurrencyCode, getExchangeRatesOfYear, getMostRecentExchangeRates } from "@/rates";
-import { getExchangeRatesUrlForYear } from "@/util";
+import { CurrencyCode, getExchangeRatesForDate, getExchangeRatesOfYear, getMostRecentExchangeRates } from "@/rates";
+import { getYearlyExchangeRatesUrl } from "@/util";
 
 suite("Exchange rates", () => {
   let server: SetupServer;
@@ -60,7 +60,7 @@ suite("Exchange rates", () => {
     ]);
   });
 
-  test("Retrieve most recent exchange rates from API", async () => {
+  test("Retrieve most recent exchange rates", async () => {
     server.use(
       rest.get(env.BNR_FX_RATES_MOST_RECENT_URL, (_req, res, ctx) => {
         return res(
@@ -84,9 +84,9 @@ suite("Exchange rates", () => {
     ]);
   });
 
-  test("Retrieve exchange rates for a specific year from the API", async () => {
+  test("Retrieve exchange rates for a specific year", async () => {
     server.use(
-      rest.get(getExchangeRatesUrlForYear(2021), (_req, res, ctx) => {
+      rest.get(getYearlyExchangeRatesUrl(2021), (_req, res, ctx) => {
         return res(
           ctx.xml(`
               <DataSet>
@@ -107,6 +107,32 @@ suite("Exchange rates", () => {
       { date: "2023-01-03", currency: "EUR", value: 4.9464 },
       { date: "2023-01-03", currency: "GBP", value: 5.9153 },
       { date: "2023-01-03", currency: "USD", value: 4.3779 },
+    ]);
+  });
+
+  test("Retrieve exchange rates for a specific date", async () => {
+    server.use(
+      rest.get(getYearlyExchangeRatesUrl(2022), (_req, res, ctx) => {
+        return res(
+          ctx.xml(`
+              <DataSet>
+                <Body>
+                  <Cube date="2022-01-21">
+                    <Rate currency="EUR">4.9449</Rate>
+                    <Rate currency="GBP">5.9178</Rate>
+                    <Rate currency="USD">4.3614</Rate>
+                  </Cube>
+                </Body>
+              </DataSet>
+            `)
+        );
+      })
+    );
+    const rates = await getExchangeRatesForDate("2022-01-21");
+    expect(rates).toEqual([
+      { date: "2022-01-21", currency: "EUR", value: 4.9449 },
+      { date: "2022-01-21", currency: "GBP", value: 5.9178 },
+      { date: "2022-01-21", currency: "USD", value: 4.3614 },
     ]);
   });
 
@@ -148,12 +174,22 @@ suite("Exchange rates", () => {
     "<DataSet><Body><Cube date='2023-01-02'><Rate/></Cube></DataSet>", // invalid Rate element
     "<DataSet><Body><Cube date='2023-01-02'><Rate multiplier='100' currency='JPY' /></Cube></DataSet>", // invalid Rate element
     "<DataSet><Body><Cube date='2023-01-02'><Rate />1</Cube></DataSet>", // invalid Rate element
-  ])("Throws error when API returns invalid XML", async (content) => {
+  ])("Throws error when getMostRecentExchangeRates returns invalid XML", async (content) => {
     server.use(
       rest.get(env.BNR_FX_RATES_MOST_RECENT_URL, (_req, res, ctx) => {
         return res(ctx.xml(content));
       })
     );
     await expect(getMostRecentExchangeRates()).rejects.toThrow("Server did not return a valid response");
+  });
+
+  test.each([
+    "2023-01-02T00:00:00.000Z", // ISO 8601
+    "02-03-2023",
+    "02/03/2023",
+    "2 March 2023",
+    "2022.01.02",
+  ])("Throws error when getExchangeRatesForDate is passed an invalid date format", async (date) => {
+    await expect(getExchangeRatesForDate(date)).rejects.toThrow("Invalid date format");
   });
 });

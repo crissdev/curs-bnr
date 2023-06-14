@@ -1,7 +1,7 @@
 import z from "zod";
 import { XMLParser } from "fast-xml-parser";
 import env from "@/env";
-import { getExchangeRatesUrlForYear } from "@/util";
+import { getYearlyExchangeRatesUrl, isValidDateString } from "@/util";
 
 export enum CurrencyCode {
   AED = "AED",
@@ -105,5 +105,13 @@ export function getMostRecentExchangeRates() {
 }
 
 export function getExchangeRatesOfYear(year: number) {
-  return fetchRates(getExchangeRatesUrlForYear(year));
+  return fetchRates(getYearlyExchangeRatesUrl(year));
+}
+
+export async function getExchangeRatesForDate(date: string) {
+  if (!isValidDateString(date)) {
+    throw new Error("Invalid date format");
+  }
+  const rates = await getExchangeRatesOfYear(new Date(date).getFullYear());
+  return rates.filter((rate) => rate.date === date);
 }
