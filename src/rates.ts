@@ -1,7 +1,7 @@
 import z from "zod";
 import { XMLParser } from "fast-xml-parser";
 import env from "@/env";
-import { getYearlyExchangeRatesUrl, isValidDateString } from "@/util";
+import { getYearlyExchangeRatesUrl, ISO_DATE_RE } from "@/util";
 
 export enum CurrencyCode {
   AED = "AED",
@@ -48,12 +48,13 @@ export interface Rate {
 async function fetchRates(url: string) {
   try {
     const xmlParser = new XMLParser({
-      ignoreAttributes: false,
       attributeNamePrefix: "",
+      ignoreAttributes: false,
+      isArray: (name) => name === "Rate" || name === "Cube",
+      parseAttributeValue: false,
+      processEntities: false,
       textNodeName: "value",
       trimValues: true,
-      transformTagName: (name) => (name === "Rate" ? "rates" : name),
-      isArray: (name) => name === "rates" || name === "Cube",
     });
     const xml = await fetch(url).then((r) => r.text());
     return z
@@ -62,8 +63,8 @@ async function fetchRates(url: string) {
           Body: z.object({
             Cube: z.array(
               z.object({
-                date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-                rates: z
+                date: z.string().regex(ISO_DATE_RE),
+                Rate: z
                   .array(
                     z.object({
                       currency: z.string(),
@@ -78,8 +79,8 @@ async function fetchRates(url: string) {
         }),
       })
       .transform((data) =>
-        data.DataSet.Body.Cube.flatMap(({ date, rates }) =>
-          rates.map<Rate>((rate) =>
+        data.DataSet.Body.Cube.flatMap(({ date, Rate }) =>
+          Rate.map<Rate>((rate) =>
             Object.assign(
               {
                 date,
@@ -109,9 +110,14 @@ export function getExchangeRatesOfYear(year: number) {
 }
 
 export async function getExchangeRatesForDate(date: string) {
-  if (!isValidDateString(date)) {
+  const parseResult = z
+    .string()
+    .regex(ISO_DATE_RE)
+    .transform((date) => new Date(date))
+    .safeParse(date);
+  if (!parseResult.success) {
     throw new Error("Invalid date format");
   }
-  const rates = await getExchangeRatesOfYear(new Date(date).getFullYear());
+  const rates = await getExchangeRatesOfYear(parseResult.data.getFullYear());
   return rates.filter((rate) => rate.date === date);
 }

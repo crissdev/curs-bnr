@@ -144,6 +144,7 @@ suite("Exchange rates", () => {
              <DataSet>
                <Body>
                  <Cube date="2023-05-28">
+                   <Rate currency="EUR">4.9449</Rate>
                    <Rate currency="HUF" multiplier="100">1.3455</Rate>
                    <Rate currency="JPY" multiplier="100">3.7840</Rate>
                    <Rate currency="KRW" multiplier="100">0.3650</Rate>
@@ -156,6 +157,7 @@ suite("Exchange rates", () => {
     );
     const rates = await getMostRecentExchangeRates();
     expect(rates).toEqual([
+      { date: "2023-05-28", currency: "EUR", value: 4.9449 },
       { date: "2023-05-28", currency: "HUF", value: 1.3455, multiplier: 100 },
       { date: "2023-05-28", currency: "JPY", value: 3.784, multiplier: 100 },
       { date: "2023-05-28", currency: "KRW", value: 0.365, multiplier: 100 },
