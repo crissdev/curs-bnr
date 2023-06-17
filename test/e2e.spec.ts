@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { expect, suite, test } from "vitest";
 import { getExchangeRatesOfYear, getMostRecentExchangeRates } from "@/rates";
+import { ISO_DATE_RE } from "@/util";
 
 suite("Prod Exchange rates", () => {
   test("Retrieve most recent exchange rates from BNR", async () => {
@@ -13,7 +14,7 @@ suite("Prod Exchange rates", () => {
     expect(rates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          date: expect.stringMatching(/\d{4}-\d{2}-\d{2}/),
+          date: expect.stringMatching(ISO_DATE_RE),
           currency: expect.any(String),
           value: expect.any(Number),
           multiplier: expect.any(Number),
@@ -32,7 +33,7 @@ suite("Prod Exchange rates", () => {
     expect(rates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          date: expect.stringMatching(/\d{4}-\d{2}-\d{2}/),
+          date: expect.stringMatching(ISO_DATE_RE),
           currency: expect.any(String),
           value: expect.any(Number),
           multiplier: expect.any(Number),
