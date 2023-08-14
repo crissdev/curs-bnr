@@ -1,7 +1,7 @@
-import z from "zod";
 import { XMLParser } from "fast-xml-parser";
 import env from "@/env";
 import { getYearlyExchangeRatesUrl, ISO_DATE_RE } from "@/util";
+import { array, coerce, minLength, number, object, optional, regex, safeParse, string, transform } from "valibot";
 
 export enum CurrencyCode {
   AED = "AED",
@@ -57,28 +57,27 @@ async function fetchRates(url: string) {
       trimValues: true,
     });
     const xml = await fetch(url).then((r) => r.text());
-    return z
-      .object({
-        DataSet: z.object({
-          Body: z.object({
-            Cube: z.array(
-              z.object({
-                date: z.string().regex(ISO_DATE_RE),
-                Rate: z
-                  .array(
-                    z.object({
-                      currency: z.string(),
-                      value: z.number(),
-                      multiplier: z.coerce.number().optional(),
-                    })
-                  )
-                  .min(1),
+    return transform(
+      object({
+        DataSet: object({
+          Body: object({
+            Cube: array(
+              object({
+                date: string([regex(ISO_DATE_RE)]),
+                Rate: array(
+                  object({
+                    currency: string(),
+                    value: number(),
+                    multiplier: optional(coerce(number(), (v) => Number(v))),
+                  }),
+                  [minLength(1)]
+                ),
               })
             ),
           }),
         }),
-      })
-      .transform((data) =>
+      }),
+      (data) =>
         data.DataSet.Body.Cube.flatMap(({ date, Rate }) =>
           Rate.map<Rate>((rate) =>
             Object.assign(
@@ -94,8 +93,7 @@ async function fetchRates(url: string) {
           // Allow only rates from known currencies
           (rate) => rate.currency in CurrencyCode
         )
-      )
-      .parse(xmlParser.parse(xml));
+    ).parse(xmlParser.parse(xml));
   } catch (err) {
     throw new Error("Server did not return a valid response", { cause: err });
   }
@@ -110,11 +108,10 @@ export function getExchangeRatesOfYear(year: number) {
 }
 
 export async function getExchangeRatesForDate(date: string) {
-  const parseResult = z
-    .string()
-    .regex(ISO_DATE_RE)
-    .transform((date) => new Date(date))
-    .safeParse(date);
+  const parseResult = safeParse(
+    transform(string([regex(ISO_DATE_RE)]), (date) => new Date(date)),
+    date
+  );
   if (!parseResult.success) {
     throw new Error("Invalid date format");
   }
