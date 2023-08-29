@@ -1,7 +1,19 @@
 import { XMLParser } from "fast-xml-parser";
 import env from "@/env";
 import { getYearlyExchangeRatesUrl, ISO_DATE_RE } from "@/util";
-import { array, coerce, minLength, number, object, optional, regex, safeParse, string, transform } from "valibot";
+import {
+  array,
+  coerce,
+  minLength,
+  number,
+  object,
+  optional,
+  regex,
+  safeParse,
+  string,
+  transform,
+  parse,
+} from "valibot";
 
 export enum CurrencyCode {
   AED = "AED",
@@ -57,7 +69,7 @@ async function fetchRates(url: string) {
       trimValues: true,
     });
     const xml = await fetch(url).then((r) => r.text());
-    return transform(
+    const schema = transform(
       object({
         DataSet: object({
           Body: object({
@@ -93,7 +105,8 @@ async function fetchRates(url: string) {
           // Allow only rates from known currencies
           (rate) => rate.currency in CurrencyCode
         )
-    ).parse(xmlParser.parse(xml));
+    );
+    return parse(schema, xmlParser.parse(xml));
   } catch (err) {
     throw new Error("Server did not return a valid response", { cause: err });
   }
