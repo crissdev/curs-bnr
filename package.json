@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "fast-xml-parser": "^4.2.7",
-    "valibot": "^0.13.1"
+    "valibot": "^0.15.0"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.5.1",
