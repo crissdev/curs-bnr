@@ -109,7 +109,6 @@ async function fetchRates(url: string) {
     );
     return parse(schema, xmlParser.parse(xml));
   } catch (err) {
-    console.log("Failed for xml", xml);
     throw new Error("Server did not return a valid response", { cause: err });
   }
 }

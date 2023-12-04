@@ -4,11 +4,9 @@
   "source": "./src/rates.ts",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
-  "unpkg": "./dist/index.umd.js",
   "types": "./dist/rates.d.ts",
   "exports": {
     "types": "./dist/rates.d.ts",
-    "require": "./dist/index.cjs",
     "default": "./dist/index.mjs"
   },
   "files": [
@@ -21,7 +19,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "microbundle",
+    "build": "microbundle -f esm --pkg-main",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src/ test/",

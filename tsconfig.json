@@ -6,7 +6,8 @@
     "target": "ESNext",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "module": "CommonJS",
+    "module": "ES2020",
+    "moduleResolution": "node",
     "noEmit": true,
     "paths": {
       "@/*": ["src/*"]
