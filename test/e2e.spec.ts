@@ -6,7 +6,7 @@ import { ISO_DATE_RE } from "@/util";
 suite("Prod Exchange rates", () => {
   test("Retrieve most recent exchange rates from BNR", async () => {
     if (!process.env.CI) {
-      console.log(chalk.yellow("⚠️ This E2E test run only when CI is defined"));
+      console.log(chalk.yellow("⚠️ This E2E test runs only when CI is defined"));
       return;
     }
     const rates = await getMostRecentExchangeRates();
@@ -25,7 +25,7 @@ suite("Prod Exchange rates", () => {
 
   test("Retrieve exchange rates for a specific year from BNR", async () => {
     if (!process.env.CI) {
-      console.log(chalk.yellow("⚠️ This E2E test run only when CI is defined"));
+      console.log(chalk.yellow("⚠️ This E2E test runs only when CI is defined"));
       return;
     }
     const rates = await getExchangeRatesOfYear(2023);
