@@ -1,20 +1,26 @@
 import { afterAll, beforeAll, expect, suite, test } from "vitest";
-import { rest } from "msw";
+import { http } from "msw";
 import { type SetupServer, setupServer } from "msw/node";
 import env from "@/env";
 import { CurrencyCode, getExchangeRatesForDate, getExchangeRatesOfYear, getMostRecentExchangeRates } from "@/rates";
 import { getYearlyExchangeRatesUrl } from "@/util";
+
+class HttpResponse {
+  static notFound(message: string) {
+    return new Response(message, { status: 404 });
+  }
+
+  static xml(content: string) {
+    return new Response(content, { status: 200, headers: { "Content-Type": "application/xml" } });
+  }
+}
 
 suite("Exchange rates", () => {
   let server: SetupServer;
 
   beforeAll(() => {
     server = setupServer();
-    server.use(
-      rest.get(/.*/, (_req, res, ctx) => {
-        return res(ctx.status(404, "Request is not mocked"));
-      })
-    );
+    server.use(http.get(/.*/, () => HttpResponse.notFound("Request is not mocked")));
     server.listen();
   });
 
@@ -62,9 +68,9 @@ suite("Exchange rates", () => {
 
   test("Retrieve most recent exchange rates", async () => {
     server.use(
-      rest.get(env.BNR_FX_RATES_MOST_RECENT_URL, (_req, res, ctx) => {
-        return res(
-          ctx.xml(`
+      http.get(env.BNR_FX_RATES_MOST_RECENT_URL, () => {
+        return HttpResponse.xml(
+          `
              <DataSet>
                <Body>
                  <Cube date="2023-05-29">
@@ -73,7 +79,7 @@ suite("Exchange rates", () => {
                  </Cube>
                </Body>
              </DataSet>
-           `)
+           `
         );
       })
     );
@@ -86,9 +92,9 @@ suite("Exchange rates", () => {
 
   test("Retrieve exchange rates for a specific year", async () => {
     server.use(
-      rest.get(getYearlyExchangeRatesUrl(2021), (_req, res, ctx) => {
-        return res(
-          ctx.xml(`
+      http.get(getYearlyExchangeRatesUrl(2021), () => {
+        return HttpResponse.xml(
+          `
               <DataSet>
                 <Body>
                   <Cube date="2023-01-03">
@@ -98,7 +104,7 @@ suite("Exchange rates", () => {
                   </Cube>
                 </Body>
               </DataSet>
-            `)
+            `
         );
       })
     );
@@ -112,9 +118,9 @@ suite("Exchange rates", () => {
 
   test("Retrieve exchange rates for a specific date", async () => {
     server.use(
-      rest.get(getYearlyExchangeRatesUrl(2022), (_req, res, ctx) => {
-        return res(
-          ctx.xml(`
+      http.get(getYearlyExchangeRatesUrl(2022), () => {
+        return HttpResponse.xml(
+          `
               <DataSet>
                 <Body>
                   <Cube date="2022-01-21">
@@ -124,7 +130,7 @@ suite("Exchange rates", () => {
                   </Cube>
                 </Body>
               </DataSet>
-            `)
+            `
         );
       })
     );
@@ -138,9 +144,9 @@ suite("Exchange rates", () => {
 
   test("Retrieve exchange rates for currencies with multiplier", async () => {
     server.use(
-      rest.get(env.BNR_FX_RATES_MOST_RECENT_URL, (_req, res, ctx) => {
-        return res(
-          ctx.xml(`
+      http.get(env.BNR_FX_RATES_MOST_RECENT_URL, () => {
+        return HttpResponse.xml(
+          `
              <DataSet>
                <Body>
                  <Cube date="2023-05-28">
@@ -151,7 +157,7 @@ suite("Exchange rates", () => {
                  </Cube>
                </Body>
              </DataSet>
-           `)
+           `
         );
       })
     );
@@ -177,11 +183,7 @@ suite("Exchange rates", () => {
     "<DataSet><Body><Cube date='2023-01-02'><Rate multiplier='100' currency='JPY' /></Cube></DataSet>", // invalid Rate element
     "<DataSet><Body><Cube date='2023-01-02'><Rate />1</Cube></DataSet>", // invalid Rate element
   ])("Throws error when getMostRecentExchangeRates returns invalid XML", async (content) => {
-    server.use(
-      rest.get(env.BNR_FX_RATES_MOST_RECENT_URL, (_req, res, ctx) => {
-        return res(ctx.xml(content));
-      })
-    );
+    server.use(http.get(env.BNR_FX_RATES_MOST_RECENT_URL, () => HttpResponse.xml(content)));
     await expect(getMostRecentExchangeRates()).rejects.toThrow("Server did not return a valid response");
   });
 

@@ -58,6 +58,7 @@ export interface Rate {
 }
 
 async function fetchRates(url: string) {
+  let xml = "";
   try {
     const xmlParser = new XMLParser({
       attributeNamePrefix: "",
@@ -68,7 +69,7 @@ async function fetchRates(url: string) {
       textNodeName: "value",
       trimValues: true,
     });
-    const xml = await fetch(url).then((r) => r.text());
+    xml = await fetch(url).then((r) => r.text());
     const schema = transform(
       object({
         DataSet: object({
@@ -108,6 +109,7 @@ async function fetchRates(url: string) {
     );
     return parse(schema, xmlParser.parse(xml));
   } catch (err) {
+    console.log("Failed for xml", xml);
     throw new Error("Server did not return a valid response", { cause: err });
   }
 }
