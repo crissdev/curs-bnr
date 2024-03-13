@@ -15,6 +15,6 @@ if (!parseResult.success) {
   throw new Error("Environment variables are not defined.");
 }
 
-const env = parseResult.data;
+const env = parseResult.output;
 
 export default env;

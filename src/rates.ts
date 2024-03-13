@@ -129,6 +129,6 @@ export async function getExchangeRatesForDate(date: string) {
   if (!parseResult.success) {
     throw new Error("Invalid date format");
   }
-  const rates = await getExchangeRatesOfYear(parseResult.data.getFullYear());
+  const rates = await getExchangeRatesOfYear(parseResult.output.getFullYear());
   return rates.filter((rate) => rate.date === date);
 }
