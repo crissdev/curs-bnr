@@ -40,7 +40,7 @@
     "chalk": "^5.3.0",
     "eslint": "^8.57.0",
     "microbundle": "^0.15.1",
-    "msw": "^2.4.7",
+    "msw": "^2.6.5",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4",
     "vite-tsconfig-paths": "^5.0.1",
